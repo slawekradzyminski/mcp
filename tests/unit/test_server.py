@@ -1,7 +1,7 @@
-"""Tests for legacy server.py module."""
+"""Tests for server.py module."""
 
 import importlib.util
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import click.testing
 import pytest
@@ -51,11 +51,28 @@ def test_main_cli():
 
     # when/then
     with patch("uvicorn.run") as mock_run:
-        result = runner.invoke(server_module.main, ["--port", "8000"])
+        # Create mock for FastMCP
+        mock_mcp = MagicMock()
+        mock_mcp.sse_app.return_value = MagicMock()
 
-        assert result.exit_code == 0
-        assert "Starting MCP website fetcher server on port 8000" in result.output
-        mock_run.assert_called_once()
+        # Patch FastMCP directly in the server_module
+        with patch.object(
+            server_module, "FastMCP", return_value=mock_mcp
+        ) as mock_fastmcp:
+            # Run the CLI
+            result = runner.invoke(server_module.main, ["--port", "8000"])
+
+            # Verify results
+            assert result.exit_code == 0
+            assert "Starting MCP website fetcher server on port 8000" in result.output
+
+            # Use ANY to match the ASGI app
+            mock_run.assert_called_once_with(ANY, host="0.0.0.0", port=8000)
+
+            # Verify FastMCP was used correctly
+            mock_fastmcp.assert_called_once_with("mcp-website-fetcher-sse")
+            mock_mcp.tool.assert_called()
+            mock_mcp.sse_app.assert_called_once()
 
 
 def test_main_cli_help():

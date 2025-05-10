@@ -40,23 +40,23 @@ Start the server on the default port (7000) or specify a custom port:
 
 ```bash
 # Using default port (7000)
-mcp-simple-tool start
+python -m mcp_simple_tool start
 
 # Using custom port
-mcp-simple-tool start --port 8000
+python -m mcp_simple_tool start --port 8000
 ```
 
 ### Managing the server
 
 ```bash
 # Check if server is running
-mcp-simple-tool check [--port PORT]
+python -m mcp_simple_tool check [--port PORT]
 
 # Stop the server
-mcp-simple-tool stop [--port PORT]
+python -m mcp_simple_tool stop [--port PORT]
 
 # Restart the server (stop and start)
-mcp-simple-tool restart [--port PORT]
+python -m mcp_simple_tool restart [--port PORT]
 ```
 
 The restart command will:
@@ -65,11 +65,28 @@ The restart command will:
 3. Wait until the server is responsive
 4. Log output to server.log
 
-## Server Tool
+## Server Tools
 
-The server exposes a tool named "fetch" that accepts one required argument:
+The server exposes the following tools:
 
-- `url`: The URL of the website to fetch
+- **fetch**: Fetches a website and returns its content
+  - `url`: The URL of the website to fetch (required)
+
+- **search_docs**: Semantic search across SDK documentation files
+  - `query`: Search phrase or question (required)
+  - `k`: Number of top matches to return (optional, default = 3)
+
+### Testing a tool
+
+You can test the tools using the CLI:
+
+```bash
+# Test the fetch tool
+python -m mcp_simple_tool call --tool fetch --args '{"url":"https://example.com"}'
+
+# Test the search_docs tool
+python -m mcp_simple_tool call --tool search_docs --args '{"query":"Context object"}'
+```
 
 ## Development Setup
 
@@ -77,7 +94,7 @@ For development, install additional tools:
 
 ```bash
 pip install -e .
-pip install black ruff mypy pytest pytest-asyncio pytest-timeout respx pydantic pydantic-settings
+pip install -r requirements.txt
 ```
 
 Use the Makefile for common tasks:
@@ -95,6 +112,17 @@ make test
 
 The test suite has a built-in 20-second timeout for all tests to prevent hanging, especially with SSE endpoints. For individual tests, a more strict timeout can be specified using the `@pytest.mark.timeout(seconds)` decorator.
 
+### Semantic Search Index
+
+For the search_docs tool, you can manually build or rebuild the vector index:
+
+```bash
+# Build or rebuild the semantic search index
+python scripts/build_doc_index.py
+```
+
+The index is built automatically on first tool use if it doesn't exist.
+
 ## Project Architecture
 
 ```
@@ -106,8 +134,12 @@ mcp_simple_tool/
         __init__.py      # Server package initialization
         app.py           # ASGI application setup
         config.py        # Configuration settings
-        handlers.py      # Tool implementation
+        handlers.py      # Tool implementations
         http.py          # HTTP utilities
+    semantic_search/     # Semantic search functionality
+        __init__.py      # Package initialization
+        indexing.py      # Build and persist vector store
+        search.py        # Load index and query helpers
 ```
 
 ## Using with Cursor
@@ -117,9 +149,9 @@ This MCP server can be used with Cursor as a client. For setup:
 1. Run the server in a terminal:
 ```bash
 source venv/bin/activate
-mcp-simple-tool start
+python -m mcp_simple_tool start
 # or use the restart command
-mcp-simple-tool restart
+python -m mcp_simple_tool restart
 ```
 
 2. Configure Cursor by creating a `.cursor/mcp.json` file:

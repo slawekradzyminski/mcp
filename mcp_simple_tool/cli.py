@@ -182,7 +182,8 @@ def stop(port: int, force: bool = False) -> None:
         # No process found but check if there's still an HTTP server responding
         if is_server_running(port):
             print(
-                f"Server is responding on port {port} but no process found to terminate"
+                f"Server is responding on port {port} "
+                "but no process found to terminate"
             )
             print("You may need to manually identify and terminate the process")
             sys.exit(1)
@@ -202,18 +203,70 @@ def restart(port: int) -> None:
     # First stop any running server
     if get_server_pid(port) or is_server_running(port):
         print(f"Stopping existing server on port {port}...")
-        stop(port=port)
+
+        # Handle stopping directly instead of calling stop command
+        pid = get_server_pid(port)
+        if pid:
+            print(f"Found server process: {pid} - terminating...")
+            try:
+                # Use force kill directly to ensure the process is fully terminated
+                print("Using force kill to ensure clean termination...")
+                os.kill(pid, signal.SIGKILL)
+                time.sleep(1)  # Give it time to fully terminate
+
+                if is_process_running(pid):
+                    print("ERROR: Failed to kill server process")
+                    sys.exit(1)
+                else:
+                    print("Server terminated successfully")
+            except OSError as e:
+                print(f"Error terminating process: {e}")
+                sys.exit(1)
+        else:
+            # No process found but check if there's still an HTTP server responding
+            if is_server_running(port):
+                print(
+                    f"Server is responding on port {port} "
+                    "but no process found to terminate"
+                )
+                print("You may need to manually identify and terminate the process")
+                sys.exit(1)
+            else:
+                print(f"No server found running on port {port}")
     else:
         print(f"No server found running on port {port}")
 
     # Make sure port is available before starting
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        s.bind(("0.0.0.0", port))
-        s.close()
-    except socket.error:
-        print(f"Error: Port {port} is still in use. Unable to start server.")
-        sys.exit(1)
+    print("Waiting for port to be available...")
+    max_retries = 10  # Increase max retries
+    for retry in range(max_retries):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.setsockopt(
+                socket.SOL_SOCKET, socket.SO_REUSEADDR, 1
+            )  # Add socket option to reuse address
+            s.bind(("0.0.0.0", port))
+            s.close()
+            print(f"Port {port} is now available")
+            break
+        except socket.error:
+            if retry < max_retries - 1:
+                print(
+                    f"Port {port} still in use, waiting... "
+                    f"(attempt {retry + 1}/{max_retries})"
+                )
+                time.sleep(3)  # Increase delay between attempts to 3 seconds
+            else:
+                print(
+                    f"Error: Port {port} is still in use after {max_retries} attempts. "
+                    "Unable to start server."
+                )
+                sys.exit(1)
+        finally:
+            try:
+                s.close()
+            except Exception:
+                pass  # Ignore errors in socket closing
 
     # Start server in daemon mode
     print(f"Starting MCP server on port {port}...")
