@@ -1,0 +1,35 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# MCP CLI Usage
+
+The MCP server provides a CLI with several commands for server management. The CLI is implemented in [mcp_simple_tool/cli.py](mdc:mcp_simple_tool/cli.py).
+
+## Main Commands
+
+1. **Start Command**: 
+   - Usage: `python -m mcp_simple_tool start [--port PORT] [--daemon]`
+   - Starts the MCP server on the specified port (defaults to 7000)
+   - Can run in foreground or background (daemon) mode
+
+2. **Check Command**:
+   - Usage: `python -m mcp_simple_tool check [--port PORT]`
+   - Checks if a server is running on the specified port
+   - Returns exit code 0 if server is running, non-zero otherwise
+
+3. **Stop Command**:
+   - Usage: `python -m mcp_simple_tool stop [--port PORT] [--force]`
+   - Stops the server running on the specified port
+   - Can use force mode to immediately kill without graceful shutdown
+
+4. **Restart Command**:
+   - Usage: `python -m mcp_simple_tool restart [--port PORT]`
+   - Stops any running server and starts a new one
+
+## Implementation Details
+
+- The CLI is implemented using Click for argument parsing
+- Server process management uses lsof to find PIDs of processes bound to a port
+- Server health check uses HTTP HEAD requests to /sse endpoint

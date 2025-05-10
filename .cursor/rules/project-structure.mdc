@@ -1,0 +1,21 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# MCP Project Structure
+
+This project is a Python MCP (Model Context Protocol) server used for fetching website content.
+
+## Main Components
+
+- **Server Module**: The core server implementation is in [mcp_simple_tool/server/app.py](mdc:mcp_simple_tool/server/app.py) which defines the Starlette application with SSE transport
+- **CLI**: Command-line interface in [mcp_simple_tool/cli.py](mdc:mcp_simple_tool/cli.py) provides start, stop, check and restart commands
+- **Legacy Server**: The original server implementation is in [mcp_simple_tool/server.py](mdc:mcp_simple_tool/server.py) which is being kept for backward compatibility
+- **HTTP Utilities**: Utility functions for making HTTP requests in [mcp_simple_tool/server/http.py](mdc:mcp_simple_tool/server/http.py)
+
+## Tests
+
+- **Unit Tests**: Located in the [tests/unit](mdc:tests/unit) directory
+- **Integration Tests**: Located in the [tests/integration](mdc:tests/integration) directory
+- **Regression Tests**: Document listing all regression test commands in [REGRESSION_TESTS.md](mdc:REGRESSION_TESTS.md)

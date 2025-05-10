@@ -1,0 +1,45 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# MCP Testing Guidelines
+
+The MCP project uses pytest for testing with specific patterns for test organization and implementation.
+
+## Test Organization
+
+- **Unit Tests**: In [tests/unit](mdc:tests/unit) - test individual components in isolation
+  - [test_cli.py](mdc:tests/unit/test_cli.py) - Tests for CLI commands
+  - [test_http.py](mdc:tests/unit/test_http.py) - Tests for HTTP utilities
+  - [test_server.py](mdc:tests/unit/test_server.py) - Tests for legacy server.py
+  - [test_main.py](mdc:tests/unit/test_main.py) - Tests for __main__ entry point
+
+- **Integration Tests**: In [tests/integration](mdc:tests/integration) - test component interactions
+  - [test_server.py](mdc:tests/integration/test_server.py) - Tests for server application
+
+## Testing Patterns
+
+1. **Mock Usage**:
+   - Use `unittest.mock.patch` for dependency mocking
+   - For async code, use `AsyncMock` for async functions/methods
+
+2. **Test Structure**:
+   - Use Given/When/Then pattern in comments
+   - Tests should have descriptive docstrings explaining what's being tested
+
+3. **Timeouts**:
+   - Tests use timeout settings to prevent hanging (especially important for SSE endpoints)
+   - Default timeout is 20 seconds per test
+
+## Running Tests
+
+See [REGRESSION_TESTS.md](mdc:REGRESSION_TESTS.md) for complete testing commands:
+
+```bash
+# Run all tests
+python -m pytest
+
+# Run with coverage
+python -m pytest --cov=mcp_simple_tool --cov-report=term
+```

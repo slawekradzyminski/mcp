@@ -1,9 +1,9 @@
 """Starlette application with SSE transport for MCP."""
 
+from mcp.server.sse import SseServerTransport
 from starlette.applications import Starlette
 from starlette.responses import Response
 from starlette.routing import Mount, Route
-from mcp.server.sse import SseServerTransport
 
 from .config import Settings
 from .handlers import server

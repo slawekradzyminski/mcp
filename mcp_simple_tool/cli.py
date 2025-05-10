@@ -8,12 +8,12 @@ import time
 from typing import Optional
 
 import click
-import uvicorn
 import requests
+import uvicorn
 from requests.exceptions import RequestException
 
-from .server.config import Settings
 from .server.app import starlette_app
+from .server.config import Settings
 
 
 def is_server_running(port: int) -> bool:
@@ -29,8 +29,8 @@ def is_server_running(port: int) -> bool:
     try:
         # Use HEAD request with timeout to avoid hanging on SSE connection
         response = requests.head(
-            f"http://localhost:{port}/sse", 
-            timeout=(1, 2)
+            f"http://localhost:{port}/sse",
+            timeout=(1, 2),
         )
         # Accept 200 or any 4xx status as sign that server is running
         return 200 <= response.status_code < 500
@@ -59,23 +59,23 @@ def start(port: int, daemon: bool = False):
     if is_server_running(port):
         print(f"Server is already running on port {port}")
         return
-    
+
     # Also check if any process is bound to this port
     if get_server_pid(port):
         print(f"Port {port} is already in use, but the server is not responding")
         print("Use 'stop' command to terminate the existing process first")
         sys.exit(1)
-    
+
     # For daemon mode, start in background
     if daemon:
         import subprocess
-        
+
         # Create detached process without the daemon flag
         log_file = open("server.log", "w")
-        
+
         # Use python -m to ensure proper module import
         cmd = [sys.executable, "-m", "mcp_simple_tool", "start", "--port", str(port)]
-        
+
         subprocess.Popen(
             cmd,
             stdout=log_file,
@@ -83,14 +83,14 @@ def start(port: int, daemon: bool = False):
             start_new_session=True,
             stdin=subprocess.DEVNULL,
         )
-        print(f"Server started in background mode. Monitor with: tail -f server.log")
+        print("Server started in background mode. Monitor with: tail -f server.log")
         print(f"Server URL: http://localhost:{port}/sse")
         return
-    
+
     # For foreground mode, run directly
     print(f"Starting MCP website fetcher server on port {port}")
     print(f"Server URL: http://localhost:{port}/sse")
-    
+
     # Run the server
     uvicorn.run(starlette_app, host="0.0.0.0", port=port)
 
@@ -111,10 +111,10 @@ def check(port: int):
             print(f"Server process found with PID: {pid}")
         else:
             print("Server is responding but PID could not be determined")
-            
+
         print(f"Server is up and running at http://localhost:{port}/sse")
         return
-    
+
     # If not responding to HTTP, check if a process is bound to the port
     pid = get_server_pid(port)
     if pid:
@@ -128,7 +128,9 @@ def check(port: int):
 
 @cli.command(help="Stop the running MCP server")
 @click.option("--port", default=Settings().port, help="Port the server is running on")
-@click.option("--force", is_flag=True, help="Force kill the process without graceful shutdown")
+@click.option(
+    "--force", is_flag=True, help="Force kill the process without graceful shutdown"
+)
 def stop(port: int, force: bool = False):
     """
     Stop the MCP server.
@@ -152,22 +154,22 @@ def stop(port: int, force: bool = False):
                 else:
                     print("Server terminated successfully with force kill")
                 return
-                
+
             # Try graceful shutdown first
             os.kill(pid, signal.SIGTERM)
-            
+
             # Give it time to terminate gracefully
             for i in range(10):  # 10 x 0.5 seconds = 5 seconds timeout
                 time.sleep(0.5)
                 if not is_process_running(pid):
                     print("Server terminated successfully")
                     return
-            
+
             # If still running, force kill
             print("Server process didn't terminate gracefully, force killing...")
             os.kill(pid, signal.SIGKILL)
             time.sleep(0.5)
-            
+
             if is_process_running(pid):
                 print("ERROR: Failed to kill server process")
                 sys.exit(1)
@@ -179,7 +181,9 @@ def stop(port: int, force: bool = False):
     else:
         # No process found but check if there's still an HTTP server responding
         if is_server_running(port):
-            print(f"Server is responding on port {port} but no process found to terminate")
+            print(
+                f"Server is responding on port {port} but no process found to terminate"
+            )
             print("You may need to manually identify and terminate the process")
             sys.exit(1)
         else:
@@ -201,28 +205,28 @@ def restart(port: int):
         stop.callback(port=port)
     else:
         print(f"No server found running on port {port}")
-    
+
     # Make sure port is available before starting
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        s.bind(('0.0.0.0', port))
+        s.bind(("0.0.0.0", port))
         s.close()
     except socket.error:
         print(f"Error: Port {port} is still in use. Unable to start server.")
         sys.exit(1)
-    
+
     # Start server in daemon mode
     print(f"Starting MCP server on port {port}...")
-    
+
     # Use subprocess directly instead of using start.callback with daemon
     import subprocess
-    
+
     # Create log file
     log_file = open("server.log", "w")
-    
+
     # Use python -m to ensure proper module import
     cmd = [sys.executable, "-m", "mcp_simple_tool", "start", "--port", str(port)]
-    
+
     proc = subprocess.Popen(
         cmd,
         stdout=log_file,
@@ -230,38 +234,41 @@ def restart(port: int):
         start_new_session=True,
         stdin=subprocess.DEVNULL,
     )
-    
+
     # Wait briefly to allow the process to start
     time.sleep(1)
-    
+
     # Check if process is still running
     if proc.poll() is not None:
         print(f"Error: Server process exited with code {proc.returncode}")
         print("Check server.log for details")
         sys.exit(1)
-    
+
     # Wait for server to become responsive
     max_retries = 10
     retry_interval = 2
     print("Waiting for server to become responsive...")
-    
+
     for i in range(1, max_retries + 1):
         print(f"Attempt {i} of {max_retries}...")
         if is_server_running(port):
             print("Server is up and running!")
             print(f"Server URL: http://localhost:{port}/sse")
             return
-        
+
         # Check if process is still alive
         if proc.poll() is not None:
             print(f"Error: Server process exited with code {proc.returncode}")
             print("Check server.log for details")
             sys.exit(1)
-            
+
         if i == max_retries:
-            print("Server process is running but not responding. Check server.log for errors.")
+            print(
+                "Server process is running but not responding. "
+                "Check server.log for errors."
+            )
             sys.exit(1)
-        
+
         time.sleep(retry_interval)
 
 
@@ -277,16 +284,17 @@ def get_server_pid(port: int) -> Optional[int]:
     """
     try:
         import subprocess
+
         # Look for processes that have the port open for listening (LISTEN state)
         output = subprocess.check_output(["lsof", "-i", f":{port}", "-sTCP:LISTEN"])
-        
+
         # Parse the output to find process IDs
-        lines = output.decode('utf-8').strip().split('\n')
+        lines = output.decode("utf-8").strip().split("\n")
         if len(lines) > 1:  # Skip header line
-            # Split the second line by whitespace and get the PID (usually the second column)
+            # Split the second line by whitespace and get the PID
             pid_str = lines[1].split()[1]
             return int(pid_str)
-    except (subprocess.SubprocessError, ValueError, IndexError) as e:
+    except (subprocess.SubprocessError, ValueError, IndexError):
         pass
     return None
 

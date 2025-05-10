@@ -1,0 +1,45 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# MCP Code Quality Standards
+
+The MCP project follows strict code quality standards enforced by various tools.
+
+## Formatting
+
+- **Black**: Used for code formatting
+  - Line length limit: 88 characters
+  - Command: `python -m black mcp_simple_tool tests`
+  - Check only: `python -m black --check mcp_simple_tool tests`
+
+## Linting
+
+- **Ruff**: Used for fast Python linting
+  - Checks for common issues like unused imports, line length, etc.
+  - Command: `python -m ruff check mcp_simple_tool tests`
+  - Auto-fix: `python -m ruff check --fix mcp_simple_tool tests`
+
+- **Mypy**: Used for static type checking
+  - Command: `python -m mypy mcp_simple_tool`
+
+## Common Issues to Watch For
+
+1. **Import Order**: Imports should follow these rules:
+   - Standard library imports first
+   - Third-party imports second
+   - Local imports last
+   - Alphabetical order within each group
+
+2. **Line Length**: Keep lines under 88 characters
+   - Break long function calls into multiple lines
+   - Use parentheses for multiline expressions
+
+3. **String Quotes**: Use double quotes consistently (Black enforces this)
+
+4. **Unused Variables**: Avoid unused variables, especially in exception handling blocks
+
+5. **Trailing Whitespace**: No trailing whitespace (Black removes this automatically)
+
+See [REGRESSION_TESTS.md](mdc:REGRESSION_TESTS.md) for commands to check code quality.

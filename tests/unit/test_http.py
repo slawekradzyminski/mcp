@@ -30,8 +30,8 @@ async def test_fetch_success():
 async def test_fetch_error():
     """Test error handling in fetch."""
     # given
-    route = respx.get("https://example.com").mock(return_value=httpx.Response(404))
+    respx.get("https://example.com").mock(return_value=httpx.Response(404))
 
     # when/then
     with pytest.raises(httpx.HTTPStatusError):
-        await fetch("https://example.com", headers={})
+        await fetch("https://example.com", headers={"User-Agent": "Test Agent"})

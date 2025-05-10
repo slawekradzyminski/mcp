@@ -1,3 +1,1 @@
 """Pytest configuration."""
-
-import pytest

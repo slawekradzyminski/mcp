@@ -1,9 +1,9 @@
 """Tests for MCP tool handlers."""
 
 import httpx
+import mcp.types as types
 import pytest
 import respx
-import mcp.types as types
 
 from mcp_simple_tool.server.handlers import fetch_tool, list_tools
 

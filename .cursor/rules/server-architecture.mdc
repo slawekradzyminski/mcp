@@ -1,0 +1,41 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# MCP Server Architecture
+
+The MCP server implements a Model Context Protocol server for fetching website content using a modular architecture.
+
+## Core Components
+
+1. **Starlette Application** - [mcp_simple_tool/server/app.py](mdc:mcp_simple_tool/server/app.py)
+   - Defines the HTTP routes and endpoints
+   - Main routes: `/sse` for Server-Sent Events and `/messages/` for communication
+
+2. **Server Handlers** - [mcp_simple_tool/server/handlers.py](mdc:mcp_simple_tool/server/handlers.py)
+   - Contains tool handlers like `fetch_tool` and `list_tools`
+   - Implements the website fetching functionality
+
+3. **HTTP Utilities** - [mcp_simple_tool/server/http.py](mdc:mcp_simple_tool/server/http.py)
+   - Provides the `fetch` function for making HTTP requests
+   - Uses `httpx` client from the MCP SDK
+
+4. **Configuration** - [mcp_simple_tool/server/config.py](mdc:mcp_simple_tool/server/config.py)
+   - Server configuration using Pydantic settings
+   - Defines default port and other server settings
+
+## Communication Flow
+
+1. Client connects to the `/sse` endpoint to establish an SSE connection
+2. The server responds with events containing tool descriptions
+3. The client sends tool invocation requests to `/messages/`
+4. The server fetches website content and returns it as a response
+5. Results are streamed back to the client via the SSE connection
+
+## SSE Protocol
+
+The server uses Server-Sent Events (SSE) for real-time communication with clients:
+- One-way communication channel from server to client
+- Automatic reconnection handling
+- Event-based messaging format
