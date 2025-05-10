@@ -1,12 +1,12 @@
 import click
 import mcp.types as types
+import uvicorn
 from mcp.server.lowlevel import Server
 from mcp.server.sse import SseServerTransport
 from mcp.shared._httpx_utils import create_mcp_http_client
 from starlette.applications import Starlette
 from starlette.responses import Response
 from starlette.routing import Mount, Route
-import uvicorn
 
 
 async def fetch_website(
@@ -17,7 +17,7 @@ async def fetch_website(
     }
     async with create_mcp_http_client(headers=headers) as client:
         response = await client.get(url)
-        response.raise_for_status()
+        await response.raise_for_status()
         return [types.TextContent(type="text", text=response.text)]
 
 
@@ -63,16 +63,14 @@ def main(port: int, transport: str) -> int:
 
     if transport != "sse":
         print("Warning: Only SSE transport is supported. Using SSE transport.")
-    
+
     sse = SseServerTransport("/messages/")
 
     async def handle_sse(request):
         async with sse.connect_sse(
             request.scope, request.receive, request._send
         ) as streams:
-            await app.run(
-                streams[0], streams[1], app.create_initialization_options()
-            )
+            await app.run(streams[0], streams[1], app.create_initialization_options())
         return Response()
 
     starlette_app = Starlette(
@@ -85,7 +83,7 @@ def main(port: int, transport: str) -> int:
 
     print(f"Starting MCP website fetcher server on port {port}")
     print(f"Server URL: http://localhost:{port}/sse")
-    
+
     uvicorn.run(starlette_app, host="0.0.0.0", port=port)
-    
+
     return 0
