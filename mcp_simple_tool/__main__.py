@@ -1,6 +1,8 @@
+"""Entry point for the MCP Simple Tool package."""
+
 import sys
 
-from .server import main
+from .cli import main
 
-print("Starting MCP website fetcher in SSE-only mode")
+print("Starting MCP website fetcher")
 sys.exit(main())

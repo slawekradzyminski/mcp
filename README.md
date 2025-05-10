@@ -2,6 +2,10 @@
 
 A simple MCP server that exposes a website fetching tool using SSE transport.
 
+## Requirements
+
+- Python 3.10 or higher (tested on Python 3.13)
+
 ## Installation
 
 ```bash
@@ -28,32 +32,82 @@ Check out the [index file](mcp_python_sdk_docs/index.md) for the complete table 
 
 ## Usage
 
+The package provides a command-line interface (CLI) with several commands to manage the MCP server:
+
+### Starting the server
+
 Start the server on the default port (7000) or specify a custom port:
 
 ```bash
 # Using default port (7000)
-python -m mcp_simple_tool
+mcp-simple-tool start
 
 # Using custom port
-python -m mcp_simple_tool --port 8000
+mcp-simple-tool start --port 8000
 ```
+
+### Managing the server
+
+```bash
+# Check if server is running
+mcp-simple-tool check [--port PORT]
+
+# Stop the server
+mcp-simple-tool stop [--port PORT]
+
+# Restart the server (stop and start)
+mcp-simple-tool restart [--port PORT]
+```
+
+The restart command will:
+1. Stop any existing server on the specified port
+2. Start a new server in the background
+3. Wait until the server is responsive
+4. Log output to server.log
+
+## Server Tool
 
 The server exposes a tool named "fetch" that accepts one required argument:
 
 - `url`: The URL of the website to fetch
 
-## Server Management Scripts
+## Development Setup
 
-The repository includes several helper scripts to manage the server:
-
-- `restart_server.sh` - Stops any running server and starts a new one, waiting until it's responsive
-- `check_server.sh` - Checks if the server is running and responsive
-- `kill_server.sh` - Stops the server
-
-Make them executable:
+For development, install additional tools:
 
 ```bash
-chmod +x *.sh
+pip install -e .
+pip install black ruff mypy pytest pytest-asyncio pytest-timeout respx pydantic pydantic-settings
+```
+
+Use the Makefile for common tasks:
+
+```bash
+# Format code
+make fmt
+
+# Run linters
+make lint
+
+# Run tests
+make test
+```
+
+The test suite has a built-in 20-second timeout for all tests to prevent hanging, especially with SSE endpoints. For individual tests, a more strict timeout can be specified using the `@pytest.mark.timeout(seconds)` decorator.
+
+## Project Architecture
+
+```
+mcp_simple_tool/
+    __init__.py          # Package initialization
+    __main__.py          # Entry point when run as module
+    cli.py               # Command-line interface
+    server/              # Server implementation
+        __init__.py      # Server package initialization
+        app.py           # ASGI application setup
+        config.py        # Configuration settings
+        handlers.py      # Tool implementation
+        http.py          # HTTP utilities
 ```
 
 ## Using with Cursor
@@ -63,9 +117,9 @@ This MCP server can be used with Cursor as a client. For setup:
 1. Run the server in a terminal:
 ```bash
 source venv/bin/activate
-python -m mcp_simple_tool
-# or use the restart script
-./restart_server.sh
+mcp-simple-tool start
+# or use the restart command
+mcp-simple-tool restart
 ```
 
 2. Configure Cursor by creating a `.cursor/mcp.json` file:
