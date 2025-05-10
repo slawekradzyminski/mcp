@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "website-fetcher-sse": {
+      "url": "http://localhost:7000/sse"
+    }
+  }
+} 
