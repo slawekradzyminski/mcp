@@ -1,5 +1,7 @@
 """MCP tool handlers."""
 
+from typing import Any, Dict, List, Union
+
 import mcp.types as types
 from mcp.server.lowlevel import Server
 
@@ -7,13 +9,13 @@ from .config import Settings
 from .http import fetch
 
 settings = Settings()
-server = Server("mcp-website-fetcher-sse")
+server: Server = Server("mcp-website-fetcher-sse")  # type: ignore
 
 
-@server.call_tool()
+@server.call_tool()  # type: ignore
 async def fetch_tool(
-    name: str, arguments: dict
-) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
+    name: str, arguments: Dict[str, Any]
+) -> List[Union[types.TextContent, types.ImageContent, types.EmbeddedResource]]:
     """
     Handler for the fetch tool.
 
@@ -38,8 +40,8 @@ async def fetch_tool(
     return [types.TextContent(type="text", text=text)]
 
 
-@server.list_tools()
-async def list_tools() -> list[types.Tool]:
+@server.list_tools()  # type: ignore
+async def list_tools() -> List[types.Tool]:
     """
     List the available tools.
 

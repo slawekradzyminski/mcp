@@ -1,11 +1,21 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
 # MCP Code Quality Standards
 
 The MCP project follows strict code quality standards enforced by various tools.
+
+## Makefile Shortcuts
+
+The project includes a [Makefile](mdc:Makefile) with convenient shortcuts:
+
+- `make fmt` - Format code with Black
+- `make fmt-check` - Check formatting without modifying files
+- `make lint` - Run linting tools (Ruff and Mypy)
+- `make test` - Run tests
+- `make ci` or `make check` - Run all checks (equivalent to CI)
 
 ## Formatting
 
@@ -13,6 +23,7 @@ The MCP project follows strict code quality standards enforced by various tools.
   - Line length limit: 88 characters
   - Command: `python -m black mcp_simple_tool tests`
   - Check only: `python -m black --check mcp_simple_tool tests`
+  - Makefile: `make fmt` or `make fmt-check`
 
 ## Linting
 
@@ -23,6 +34,13 @@ The MCP project follows strict code quality standards enforced by various tools.
 
 - **Mypy**: Used for static type checking
   - Command: `python -m mypy mcp_simple_tool`
+  - Requires type stubs: `pip install types-requests`
+  - Type ignores can be added with `# type: ignore` for specific cases
+  - Configuration in [pyproject.toml](mdc:pyproject.toml) with `python_version = "3.10"`
+  - Type annotations for functions and variables are required
+  - Uses `typing` module for complex types:
+    - `List`, `Dict`, `Union`, `Any`, `Optional`, etc.
+    - Return types are always specified, including `-> None`
 
 ## Common Issues to Watch For
 
@@ -41,5 +59,7 @@ The MCP project follows strict code quality standards enforced by various tools.
 4. **Unused Variables**: Avoid unused variables, especially in exception handling blocks
 
 5. **Trailing Whitespace**: No trailing whitespace (Black removes this automatically)
+
+6. **Type Annotations**: All functions must have return type annotations and parameter annotations
 
 See [REGRESSION_TESTS.md](mdc:REGRESSION_TESTS.md) for commands to check code quality.

@@ -1,8 +1,12 @@
-"""Entry point for the MCP Simple Tool package."""
+"""Main entrypoint for the MCP Simple Tool."""
 
 import sys
 
-from .cli import main
+from mcp_simple_tool.cli import main
 
-print("Starting MCP website fetcher")
-sys.exit(main())
+# Always call main() to make it easier to test
+if __name__ == "__main__":
+    sys.exit(main())
+else:
+    # For testing purposes, still call main but don't exit
+    main()

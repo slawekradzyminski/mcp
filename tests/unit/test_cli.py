@@ -225,7 +225,7 @@ def test_restart_command_server_running(runner):
         runner.invoke(cli, ["restart"])
 
     # then
-    assert mock_stop.callback.called
+    assert mock_stop.called
     assert mock_socket.called
     assert mock_sock_instance.bind.called
     assert mock_popen.called

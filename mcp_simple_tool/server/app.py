@@ -2,6 +2,7 @@
 
 from mcp.server.sse import SseServerTransport
 from starlette.applications import Starlette
+from starlette.requests import Request
 from starlette.responses import Response
 from starlette.routing import Mount, Route
 
@@ -12,7 +13,7 @@ settings = Settings()
 sse = SseServerTransport("/messages/")
 
 
-async def handle_sse(request):
+async def handle_sse(request: Request) -> Response:
     """Handle SSE connections."""
     async with sse.connect_sse(
         request.scope, request.receive, request._send

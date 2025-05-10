@@ -39,7 +39,7 @@ def is_server_running(port: int) -> bool:
 
 
 @click.group()
-def cli():
+def cli() -> None:
     """MCP Simple Tool command line interface."""
     pass
 
@@ -47,7 +47,7 @@ def cli():
 @cli.command(help="Start the MCP server")
 @click.option("--port", default=Settings().port, help="Port to listen on for SSE")
 @click.option("--daemon", is_flag=True, help="Run server as a background daemon")
-def start(port: int, daemon: bool = False):
+def start(port: int, daemon: bool = False) -> None:
     """
     Start the MCP server.
 
@@ -97,7 +97,7 @@ def start(port: int, daemon: bool = False):
 
 @cli.command(help="Check if the MCP server is running")
 @click.option("--port", default=Settings().port, help="Port to check")
-def check(port: int):
+def check(port: int) -> None:
     """
     Check if the MCP server is running.
 
@@ -131,7 +131,7 @@ def check(port: int):
 @click.option(
     "--force", is_flag=True, help="Force kill the process without graceful shutdown"
 )
-def stop(port: int, force: bool = False):
+def stop(port: int, force: bool = False) -> None:
     """
     Stop the MCP server.
 
@@ -192,7 +192,7 @@ def stop(port: int, force: bool = False):
 
 @cli.command(help="Restart the MCP server")
 @click.option("--port", default=Settings().port, help="Port to run the server on")
-def restart(port: int):
+def restart(port: int) -> None:
     """
     Restart the MCP server.
 
@@ -202,7 +202,7 @@ def restart(port: int):
     # First stop any running server
     if get_server_pid(port) or is_server_running(port):
         print(f"Stopping existing server on port {port}...")
-        stop.callback(port=port)
+        stop(port=port)
     else:
         print(f"No server found running on port {port}")
 
@@ -317,6 +317,7 @@ def is_process_running(pid: int) -> bool:
         return False
 
 
-def main():
+def main() -> int:
     """Main entry point for the CLI."""
     cli()
+    return 0

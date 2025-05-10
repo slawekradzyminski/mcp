@@ -2,6 +2,29 @@
 
 This document lists commands that can be run locally to perform a full regression test of the MCP server, matching the CI pipeline tests.
 
+## Makefile Shortcuts
+
+The project includes a Makefile with shortcuts for common tasks:
+
+```bash
+# Format code with Black
+make fmt
+
+# Check formatting without modifying files
+make fmt-check
+
+# Run linting (ruff and mypy)
+make lint
+
+# Run tests
+make test
+
+# Run all checks (equivalent to CI)
+make ci
+# or
+make check
+```
+
 ## Code Quality Checks
 
 ### Formatting
@@ -23,6 +46,20 @@ python -m ruff check mcp_simple_tool tests
 # Run mypy type checker
 python -m mypy mcp_simple_tool
 ```
+
+#### MyPy Type Checking
+
+MyPy requires type stubs for some third-party libraries. Make sure to install them:
+
+```bash
+# Install required type stubs
+pip install types-requests
+
+# Alternatively, let mypy install missing type stubs automatically
+mypy --install-types mcp_simple_tool
+```
+
+Type checking issues can be suppressed using `# type: ignore` comments for third-party code or cases where types cannot be properly annotated.
 
 ## Tests
 
@@ -56,21 +93,27 @@ python -m pytest
 python -m pytest --cov=mcp_simple_tool --cov-report=term
 ```
 
-## Comprehensive Check
+## Comprehensive Check (CI Equivalent)
 
 To run a full check similar to CI, execute these commands in sequence:
 
 ```bash
-# Check formatting
+# Install dependencies
+python -m pip install --upgrade pip
+pip install -e .
+pip install -r requirements.txt
+
+# Run all checks using Makefile
+make ci
+
+# Alternatively, run the commands manually:
 python -m black --check mcp_simple_tool tests
-
-# Run linters
-python -m ruff check mcp_simple_tool tests
+python -m ruff check mcp_simple_tool
 python -m mypy mcp_simple_tool
-
-# Run all tests with coverage
-python -m pytest --cov=mcp_simple_tool --cov-report=term
+python -m pytest -q
 ```
+
+The CI workflow runs these checks on Python 3.13 in Ubuntu, but they should work consistently on all supported platforms.
 
 ## Running the Server
 
