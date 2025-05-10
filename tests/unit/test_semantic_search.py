@@ -97,9 +97,11 @@ def test_semantic_search(mock_load_assets: MagicMock) -> None:
     )
 
     # Mock _cosine_similarity_search to return predetermined results
-    with patch("mcp_simple_tool.semantic_search.search._cosine_similarity_search") as mock_cosine:
+    with patch(
+        "mcp_simple_tool.semantic_search.search._cosine_similarity_search"
+    ) as mock_cosine:
         mock_cosine.return_value = [(0, 0.9), (2, 0.7)]
-        
+
         # when
         results = search.semantic_search("test query", k=2)
 

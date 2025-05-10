@@ -5,35 +5,30 @@ import mcp.types as types
 import pytest
 import respx
 
-from mcp_simple_tool.server.handlers import fetch_tool, list_tools
+from mcp_simple_tool.server.handlers import fetch_tool, mcp, search_docs_tool
 
 
 @pytest.mark.asyncio
-async def test_list_tools():
-    """Test tool listing functionality."""
+async def test_tools_registration():
+    """Test that tools are properly registered with FastMCP."""
     # when
-    tools = await list_tools()
+    tools = await mcp.list_tools()
 
     # then
     assert len(tools) == 2
-    assert tools[0].name == "fetch"
-    assert tools[1].name == "search_docs"
 
+    # Find the fetch tool
+    fetch_tool_def = next((t for t in tools if t.name == "fetch_tool"), None)
+    assert fetch_tool_def is not None
+    assert fetch_tool_def.inputSchema is not None
+    assert "url" in fetch_tool_def.inputSchema["properties"]
 
-@pytest.mark.asyncio
-async def test_fetch_tool_invalid_name():
-    """Test error handling for invalid tool names."""
-    # when/then
-    with pytest.raises(ValueError, match="Unknown tool"):
-        await fetch_tool("unknown", {"url": "http://example.com"})
-
-
-@pytest.mark.asyncio
-async def test_fetch_tool_missing_url():
-    """Test error handling for missing URL parameter."""
-    # when/then
-    with pytest.raises(ValueError, match="Missing required argument 'url'"):
-        await fetch_tool("fetch", {})
+    # Find the search_docs tool
+    search_tool_def = next((t for t in tools if t.name == "search_docs_tool"), None)
+    assert search_tool_def is not None
+    assert search_tool_def.inputSchema is not None
+    assert "query" in search_tool_def.inputSchema["properties"]
+    assert "k" in search_tool_def.inputSchema["properties"]
 
 
 @respx.mock
@@ -46,9 +41,37 @@ async def test_fetch_tool_success():
     )
 
     # when
-    result = await fetch_tool("fetch", {"url": "http://example.com"})
+    result = await fetch_tool("http://example.com")
 
     # then
     assert len(result) == 1
     assert isinstance(result[0], types.TextContent)
     assert result[0].text == "Example content"
+
+
+@pytest.mark.asyncio
+async def test_search_docs_tool():
+    """Test the search_docs_tool with mocked semantic search."""
+    # given
+    # Patch the semantic_search function to return a known result
+    with pytest.MonkeyPatch().context() as mp:
+        mp.setattr(
+            "mcp_simple_tool.server.handlers.semantic_search",
+            lambda query, k: [
+                {
+                    "file": "test.md",
+                    "score": 0.95,
+                    "excerpt": "Test excerpt",
+                }
+            ],
+        )
+
+        # when
+        result = await search_docs_tool("test query")
+
+        # then
+        assert len(result) == 1
+        assert isinstance(result[0], types.TextContent)
+        assert "test.md" in result[0].text
+        assert "0.950" in result[0].text
+        assert "Test excerpt" in result[0].text

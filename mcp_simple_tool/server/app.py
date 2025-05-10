@@ -1,31 +1,7 @@
 """Starlette application with SSE transport for MCP."""
 
-from mcp.server.sse import SseServerTransport
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import Response
-from starlette.routing import Mount, Route
+from .handlers import mcp
 
-from .config import Settings
-from .handlers import server
-
-settings = Settings()
-sse = SseServerTransport("/messages/")
-
-
-async def handle_sse(request: Request) -> Response:
-    """Handle SSE connections."""
-    async with sse.connect_sse(
-        request.scope, request.receive, request._send
-    ) as streams:
-        await server.run(streams[0], streams[1], server.create_initialization_options())
-    return Response()
-
-
-starlette_app = Starlette(
-    debug=True,
-    routes=[
-        Route("/sse", endpoint=handle_sse, methods=["GET"]),
-        Mount("/messages/", app=sse.handle_post_message),
-    ],
-)
+# The FastMCP's sse_app() method provides the complete ASGI app for SSE.
+# It internally handles the SseServerTransport, routes, and server run logic.
+starlette_app = mcp.sse_app()

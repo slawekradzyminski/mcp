@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import pathlib
 from dataclasses import dataclass
-from typing import Iterator, Sequence, Dict, Any
+from typing import Any, Dict, Iterator, Sequence
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer

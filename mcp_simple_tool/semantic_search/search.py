@@ -43,7 +43,9 @@ def _load_assets() -> Tuple[TfidfVectorizer, np.ndarray, List[Dict[str, Any]]]:
     return vectorizer, matrix, meta
 
 
-def _cosine_similarity_search(matrix: np.ndarray, vec: np.ndarray, k: int) -> List[Tuple[int, float]]:
+def _cosine_similarity_search(
+    matrix: np.ndarray, vec: np.ndarray, k: int
+) -> List[Tuple[int, float]]:
     """
     Perform k-nearest neighbors search using cosine similarity.
 
@@ -62,7 +64,7 @@ def _cosine_similarity_search(matrix: np.ndarray, vec: np.ndarray, k: int) -> Li
 
     # Calculate cosine similarity (dot product of normalized vectors)
     sims = matrix @ vec
-    
+
     # Get top k results
     k = min(k, len(sims))
     idxs = np.argsort(-sims)[:k]
@@ -81,7 +83,7 @@ def semantic_search(query: str, k: int = 3) -> List[Dict[str, Any]]:
         List of dicts with 'file', 'score', and 'excerpt' keys
     """
     vectorizer, matrix, meta = _load_assets()
-    
+
     # Transform the query using the fitted vectorizer
     q_vec_sparse = vectorizer.transform([query])
     q_vec: np.ndarray = q_vec_sparse.toarray()[0].astype("float32")

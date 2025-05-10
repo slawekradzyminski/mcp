@@ -213,10 +213,12 @@ def test_restart_command_server_running(runner):
     # given
     mock_socket_instance = MagicMock()
     mock_socket_instance.bind.return_value = None  # Mock successful bind
-    
+
     with (
         patch("mcp_simple_tool.cli.get_server_pid", return_value=1234),
-        patch("mcp_simple_tool.cli.is_server_running", side_effect=[True, False, True]),  # Initial check, then after kill, then for responsiveness
+        patch(
+            "mcp_simple_tool.cli.is_server_running", side_effect=[True, False, True]
+        ),  # Initial check, then after kill, then for responsiveness
         patch("mcp_simple_tool.cli.is_process_running", return_value=False),
         patch("os.kill") as mock_kill,
         patch("socket.socket", return_value=mock_socket_instance),
@@ -228,7 +230,7 @@ def test_restart_command_server_running(runner):
     ):
         # when
         result = runner.invoke(cli, ["restart"], catch_exceptions=False)
-        
+
         # Then see what's in the output if the test fails
         if result.exit_code != 0:
             print(f"Test failed with output: {result.output}")
