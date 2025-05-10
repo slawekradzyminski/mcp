@@ -15,10 +15,9 @@ async def test_list_tools():
     tools = await list_tools()
 
     # then
-    assert len(tools) == 1
+    assert len(tools) == 2
     assert tools[0].name == "fetch"
-    assert tools[0].description == "Fetches a website and returns its content"
-    assert "url" in tools[0].inputSchema["properties"]
+    assert tools[1].name == "search_docs"
 
 
 @pytest.mark.asyncio

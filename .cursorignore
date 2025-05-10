@@ -1,0 +1,27 @@
+# Cursor ignore file
+
+# Virtual environment
+venv/
+.venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+.tox/
+htmlcov/
+
+# Build artifacts
+*.egg-info/
+build/
+dist/
+
+# Semantic search index files
+mcp_python_sdk_docs/.vector_index.faiss
+mcp_python_sdk_docs/.vector_meta.jsonl
+mcp_python_sdk_docs/.vector_index.npy
+mcp_python_sdk_docs/.tfidf_vocab.json 

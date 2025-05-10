@@ -4,6 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from click.testing import CliRunner
+import signal
+import unittest.mock
 
 from mcp_simple_tool.cli import (
     cli,
@@ -209,25 +211,32 @@ def test_stop_command_server_not_running(runner):
 def test_restart_command_server_running(runner):
     """Test restart command when server is already running."""
     # given
+    mock_socket_instance = MagicMock()
+    mock_socket_instance.bind.return_value = None  # Mock successful bind
+    
     with (
         patch("mcp_simple_tool.cli.get_server_pid", return_value=1234),
-        patch("mcp_simple_tool.cli.is_server_running", return_value=True),
-        patch("mcp_simple_tool.cli.stop") as mock_stop,
-        patch("socket.socket") as mock_socket,
+        patch("mcp_simple_tool.cli.is_server_running", side_effect=[True, False, True]),  # Initial check, then after kill, then for responsiveness
+        patch("mcp_simple_tool.cli.is_process_running", return_value=False),
+        patch("os.kill") as mock_kill,
+        patch("socket.socket", return_value=mock_socket_instance),
+        patch("socket.SOL_SOCKET", 1),  # Mock socket constants
+        patch("socket.SO_REUSEADDR", 2),
         patch("subprocess.Popen") as mock_popen,
         patch("time.sleep"),
+        patch("builtins.open", MagicMock()),
     ):
-        # Mock socket bind method
-        mock_sock_instance = MagicMock()
-        mock_socket.return_value = mock_sock_instance
-
         # when
-        runner.invoke(cli, ["restart"])
+        result = runner.invoke(cli, ["restart"], catch_exceptions=False)
+        
+        # Then see what's in the output if the test fails
+        if result.exit_code != 0:
+            print(f"Test failed with output: {result.output}")
 
     # then
-    assert mock_stop.called
-    assert mock_socket.called
-    assert mock_sock_instance.bind.called
+    assert mock_kill.call_args_list[0] == unittest.mock.call(1234, signal.SIGKILL)
+    assert mock_socket_instance.setsockopt.called
+    assert mock_socket_instance.bind.called
     assert mock_popen.called
 
 
