@@ -65,6 +65,16 @@ The restart command will:
 3. Wait until the server is responsive
 4. Log output to server.log
 
+### CLI quick reference
+
+| Command | Purpose |
+|---------|---------|
+| `start` | Start the server |
+| `stop`  | Stop the server |
+| `check` | Health-check |
+| `restart` | Stop & start |
+| `call` | Invoke a tool locally or against a running server |
+
 ## Server Tools
 
 The server exposes the following tools:
@@ -82,7 +92,7 @@ You can test the tools using the CLI:
 
 ```bash
 # Test the fetch tool
-python -m mcp_simple_tool call --tool fetch --args '{"url":"https://example.com"}'
+python -m mcp_simple_tool call --tool fetch --args '{"url":"https://awesome-testing.com"}'
 
 # Test the search_docs tool
 python -m mcp_simple_tool call --tool search_docs --args '{"query":"Context object"}'

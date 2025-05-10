@@ -28,6 +28,12 @@ The MCP server provides a CLI with several commands for server management. The C
    - Usage: `python -m mcp_simple_tool restart [--port PORT]`
    - Stops any running server and starts a new one
 
+5. **Call Command**:
+   - Usage: `python -m mcp_simple_tool call --tool TOOL_NAME --args '{"key":"value"}' [--port PORT] [--json]`
+   - Invokes a tool and displays its result
+   - Works either against a running server or directly with in-process mcp
+   - Use `--json` flag to get raw JSON output
+
 ## Implementation Details
 
 - The CLI is implemented using Click for argument parsing
