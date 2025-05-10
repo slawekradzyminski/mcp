@@ -15,6 +15,17 @@ source venv/bin/activate
 pip install -e .
 ```
 
+## MCP Python SDK Documentation
+
+The MCP Python SDK documentation has been split into smaller files and organized in the `mcp_python_sdk_docs/` directory. This structure makes it easier for AI agents to navigate and understand the SDK. The documentation covers:
+
+- Core concepts (servers, resources, tools, etc.)
+- Running MCP servers in different modes
+- Examples and advanced usage
+- And more!
+
+Check out the [index file](mcp_python_sdk_docs/index.md) for the complete table of contents.
+
 ## Usage
 
 Start the server on the default port (7000) or specify a custom port:
