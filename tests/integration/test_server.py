@@ -27,11 +27,12 @@ async def test_tool_registration():
     tools = await mcp.list_tools()
 
     # then
-    assert len(tools) == 2
+    assert len(tools) == 3  # Updated to include get_local_content_tool
 
     tool_names = {tool.name for tool in tools}
-    assert "fetch_tool" in tool_names
+    assert "http_fetch_tool" in tool_names
     assert "search_docs_tool" in tool_names
+    assert "get_local_content_tool" in tool_names
 
 
 def test_app_is_asgi_app():

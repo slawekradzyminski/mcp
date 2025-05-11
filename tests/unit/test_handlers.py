@@ -3,9 +3,14 @@
 import httpx
 import mcp.types as types
 import pytest
-import respx
+from unittest.mock import AsyncMock, MagicMock
 
-from mcp_simple_tool.server.handlers import fetch_tool, mcp, search_docs_tool
+from mcp_simple_tool.server.handlers import (
+    http_fetch_tool,
+    mcp,
+    search_docs_tool,
+    settings,
+)
 
 
 @pytest.mark.asyncio
@@ -15,10 +20,10 @@ async def test_tools_registration():
     tools = await mcp.list_tools()
 
     # then
-    assert len(tools) == 2
+    assert len(tools) == 3
 
     # Find the fetch tool
-    fetch_tool_def = next((t for t in tools if t.name == "fetch_tool"), None)
+    fetch_tool_def = next((t for t in tools if t.name == "http_fetch_tool"), None)
     assert fetch_tool_def is not None
     assert fetch_tool_def.inputSchema is not None
     assert "url" in fetch_tool_def.inputSchema["properties"]
@@ -30,23 +35,35 @@ async def test_tools_registration():
     assert "query" in search_tool_def.inputSchema["properties"]
     assert "k" in search_tool_def.inputSchema["properties"]
 
+    # Find the get_content tool
+    get_local_content_tool_def = next(
+        (t for t in tools if t.name == "get_local_content_tool"), None
+    )
+    assert get_local_content_tool_def is not None
+    assert get_local_content_tool_def.inputSchema is not None
+    assert "file" in get_local_content_tool_def.inputSchema["properties"]
 
-@respx.mock
+
 @pytest.mark.asyncio
 async def test_fetch_tool_success():
     """Test successful fetch tool execution."""
-    # given
-    respx.get("http://example.com").mock(
-        return_value=httpx.Response(200, text="Example content")
-    )
+    # given - mock the fetch function
+    mock_fetch = AsyncMock(return_value="Example content")
 
-    # when
-    result = await fetch_tool("http://example.com")
+    # patch the http.fetch function
+    with pytest.MonkeyPatch().context() as mp:
+        mp.setattr("mcp_simple_tool.server.handlers.fetch", mock_fetch)
 
-    # then
-    assert len(result) == 1
-    assert isinstance(result[0], types.TextContent)
-    assert result[0].text == "Example content"
+        # when
+        result = await http_fetch_tool("http://example.com")
+
+        # then
+        mock_fetch.assert_called_once_with(
+            "http://example.com", headers={"User-Agent": settings.user_agent}
+        )
+        assert len(result) == 1
+        assert isinstance(result[0], types.TextContent)
+        assert result[0].text == "Example content"
 
 
 @pytest.mark.asyncio

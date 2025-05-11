@@ -92,7 +92,11 @@ async def _call(tool_name: str, args_dict: Dict[str, Any], port: int) -> Any:
         RuntimeError: If the tool is not found or another error occurs
     """
     # Handle known tool name aliases
-    tool_name_mapping = {"fetch": "fetch_tool", "search_docs": "search_docs_tool"}
+    tool_name_mapping = {
+        "fetch": "http_fetch_tool",
+        "search_docs": "search_docs_tool",
+        "get_content": "get_local_content_tool",
+    }
 
     # Map common names to actual tool names if necessary
     actual_tool_name = tool_name_mapping.get(tool_name, tool_name)

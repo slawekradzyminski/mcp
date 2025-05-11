@@ -77,12 +77,15 @@ The restart command will:
 
 The server exposes the following tools:
 
-- **fetch**: Fetches a website and returns its content
+- **fetch**: *Remote* HTTP fetcher – give an absolute URL; returns page text.
   - `url`: The URL of the website to fetch (required)
 
-- **search_docs**: Semantic search across SDK documentation files
+- **search_docs**: Semantic search across SDK documentation; returns top-k excerpts.
   - `query`: Search phrase or question (required)
   - `k`: Number of top matches to return (optional, default = 3)
+
+- **get_content**: Get the **full local file** for any match returned by `search_docs`.
+  - `file`: Path relative to docs (required)
 
 ### Testing a tool
 
