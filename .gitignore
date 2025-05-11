@@ -130,7 +130,7 @@ Thumbs.db
 server.log
 
 # Semantic search index files
-mcp_python_sdk_docs/.vector_index.faiss
-mcp_python_sdk_docs/.vector_meta.jsonl
-mcp_python_sdk_docs/.vector_index.npy
-mcp_python_sdk_docs/.tfidf_vocab.json 
+docs/.vector_index.faiss
+docs/.vector_meta.jsonl
+docs/.vector_index.npy
+docs/.tfidf_vocab.json 

@@ -22,7 +22,7 @@ __all__ = [
     "MODEL_NAME",
 ]
 
-DOC_DIR = pathlib.Path(__file__).resolve().parents[2] / "mcp_python_sdk_docs"
+DOC_DIR = pathlib.Path(__file__).resolve().parents[2] / "docs"
 INDEX_PATH = DOC_DIR / ".vector_index.npy"
 META_PATH = DOC_DIR / ".vector_meta.jsonl"
 CHUNK_SIZE = 400  # characters, tweak as needed

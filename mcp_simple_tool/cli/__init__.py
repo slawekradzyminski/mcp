@@ -16,14 +16,12 @@ def cli() -> None:  # pragma: no cover
 
 
 # Import and add command functions to the CLI group
-from .call_cmd import call  # noqa: E402
 from .check_cmd import check  # noqa: E402
 from .restart_cmd import restart  # noqa: E402
 from .start_cmd import start  # noqa: E402
 from .stop_cmd import stop  # noqa: E402
 
 # Add commands to the CLI group
-cli.add_command(call)
 cli.add_command(check)
 cli.add_command(restart)
 cli.add_command(start)

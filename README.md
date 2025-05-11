@@ -21,14 +21,12 @@ pip install -r requirements.txt
 
 ## MCP Python SDK Documentation
 
-The MCP Python SDK documentation has been split into smaller files and organized in the `mcp_python_sdk_docs/` directory. This structure makes it easier for AI agents to navigate and understand the SDK. The documentation covers:
+The MCP Python SDK documentation has been split into smaller files and organized in the `docs/` directory. This structure makes it easier for AI agents to navigate and understand the SDK. The documentation covers:
 
 - Core concepts (servers, resources, tools, etc.)
 - Running MCP servers in different modes
 - Examples and advanced usage
 - And more!
-
-Check out the [index file](mcp_python_sdk_docs/index.md) for the complete table of contents.
 
 ## Usage
 
@@ -73,30 +71,21 @@ The restart command will:
 | `stop`  | Stop the server |
 | `check` | Health-check |
 | `restart` | Stop & start |
-| `call` | Invoke a tool locally or against a running server |
 
 ## Server Tools
 
 The server exposes the following tools:
 
-- **fetch**: Fetches a website and returns its content
+- **fetch**: *Remote* HTTP fetcher – give an absolute URL; returns page text.
   - `url`: The URL of the website to fetch (required)
 
-- **search_docs**: Semantic search across SDK documentation files
+- **search_docs**: Semantic search across SDK documentation; returns top-k excerpts.
   - `query`: Search phrase or question (required)
   - `k`: Number of top matches to return (optional, default = 3)
 
-### Testing a tool
+- **get_content**: Get the **full local file** for any match returned by `search_docs`.
+  - `file`: Path relative to docs (required)
 
-You can test the tools using the CLI:
-
-```bash
-# Test the fetch tool
-python -m mcp_simple_tool call --tool fetch --args '{"url":"https://awesome-testing.com"}'
-
-# Test the search_docs tool
-python -m mcp_simple_tool call --tool search_docs --args '{"query":"Context object"}'
-```
 
 ## Development Setup
 
