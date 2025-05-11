@@ -71,7 +71,6 @@ The restart command will:
 | `stop`  | Stop the server |
 | `check` | Health-check |
 | `restart` | Stop & start |
-| `call` | Invoke a tool locally or against a running server |
 
 ## Server Tools
 
@@ -87,17 +86,6 @@ The server exposes the following tools:
 - **get_content**: Get the **full local file** for any match returned by `search_docs`.
   - `file`: Path relative to docs (required)
 
-### Testing a tool
-
-You can test the tools using the CLI:
-
-```bash
-# Test the fetch tool
-python -m mcp_simple_tool call --tool fetch --args '{"url":"https://awesome-testing.com"}'
-
-# Test the search_docs tool
-python -m mcp_simple_tool call --tool search_docs --args '{"query":"Context object"}'
-```
 
 ## Development Setup
 
